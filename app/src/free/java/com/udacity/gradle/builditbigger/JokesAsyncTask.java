@@ -25,11 +25,22 @@ public class JokesAsyncTask extends AsyncTask<Pair<Context, String>, Void, Strin
     private String mResult;
     private InterstitialAd mInterstitialAd;
     private ProgressBar mProgressBar;
+    private TaskListener listener = null;
+    private Exception error = null;
 
+
+
+    public interface TaskListener {
+        public void onComplete(String jokeString, Exception e);
+    }
 
     public JokesAsyncTask(Context context, ProgressBar progressBar) {
         this.mContext = context;
         this.mProgressBar = progressBar;
+    }
+    public JokesAsyncTask setListener(TaskListener listener) {
+        this.listener = listener;
+        return this;
     }
 
     @Override
@@ -58,6 +69,8 @@ public class JokesAsyncTask extends AsyncTask<Pair<Context, String>, Void, Strin
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
+        if (this.listener != null)
+            this.listener.onComplete(result, error);
         mResult = result;
         // Setting the interstitial ad
         mInterstitialAd = new InterstitialAd(mContext);
